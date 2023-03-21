@@ -1,1 +1,1 @@
-# Utilisation de l'IA pour prédire le diabète de type I
+# Usage of AI to detect diabetes
