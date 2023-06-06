@@ -104,16 +104,41 @@ class Patient_Data:
 		for i in range(len(self.data) - sequence_length):
 			input_sequence.append(np.column_stack((
 				cgm_levels[i:i+sequence_length],
-				insulin[i:i+sequence_length],
-				meal_intake[i:i+sequence_length]
+				meal_intake[i:i+sequence_length],
+				insulin[i:i+sequence_length]
 			)))
-			output_sequence.append(cgm_levels[i+sequence_length])
+			# edited output to include the 3 values
+			output_sequence.append(np.column_stack((
+				cgm_levels[i+sequence_length],
+				meal_intake[i+sequence_length],
+				insulin[i+sequence_length]
+			)))
 
 		# Convert the input and output sequences to numpy arrays
 		input_sequence = np.array(input_sequence)
 		output_sequence = np.array(output_sequence)
 
 		return input_sequence, output_sequence
+	
+	def get_last_six_hours(self):
+		# get the last six hours of data
+		data = self.data.to_numpy()
+		cgm_levels = data[:, 0].astype(float)
+		meal_intake = data[:, 1].astype(bool)
+		insulin = data[:, 2].astype(float)
+
+		# Prepare the input and output sequences
+		input_sequence = []
+		output_sequence = []
+		sequence_length = 24
+
+		input_sequence.append(np.column_stack((
+			cgm_levels[-sequence_length:],
+			meal_intake[-sequence_length:],
+			insulin[-sequence_length:]
+		)))
+
+		return np.array(input_sequence)
 
 
 	def get_possible_entries(self, entrie_name):

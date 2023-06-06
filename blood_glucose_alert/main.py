@@ -1,9 +1,18 @@
 from data_manipulation import *
 from model import *
 import os
+import datetime
 
 # thanks to https://www.nature.com/articles/s41597-023-01940-7 for the data
 
+def predict_on(patient, save_name, time=4):
+	model = Glucose_Predictor()
+	if os.path.exists(save_name+".h5"):
+		model.load(save_name)
+	else:
+		model.train(patient)
+		model.save(save_name)
+	return model.predict(patient, time)
 
 # open all files in the directory
 files = os.listdir("shanghai_monitoring_dataset")
@@ -16,26 +25,15 @@ for file in files:
 		patients_list.append(patient)
 
 
-test_patient = patients_list.pop(0)
+test_patient = patients_list.pop(2)
 patients_summary = Patient_Summary("Shanghai_T1DM_Summary.xlsx")
 
-model = Glucose_Predictor()
-
-# train the model
-SAVE_NAME = "model_solo"
-
-if os.path.exists(SAVE_NAME+".h5"):
-	model.load(SAVE_NAME)
-else:
-	model.train(patients_list[0])
-	model.save(SAVE_NAME)
+predicted_data = predict_on(test_patient, test_patient.ID+"_model", 30)
+# save predicted data in a file
+with open(test_patient.ID+"_predicted_data.txt", "w") as file:
+	last_time = test_patient.data.index[-1]
+	for i in range(len(predicted_data)):
+		last_time += datetime.timedelta(minutes=15)
+		file.write(last_time.strftime("%Y-%m-%d %H:%M:%S") + "\t" + str(predicted_data[i]) + "\n")
 
 
-# PREDICT data
-predictions_test = model.predict(test_patient)
-
-
-print(predictions_test)
-
-"""for i, prediction in enumerate(predictions_test):
-    print(f"Prediction at t+{15 * (i+1)} minutes: {prediction:.2f}")"""
