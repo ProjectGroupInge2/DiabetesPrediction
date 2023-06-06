@@ -12,7 +12,7 @@ class Glucose_Predictor:
 		model = Sequential()
 		model.add(InputLayer(input_shape=(24, 3)))
 		model.add(Normalization())
-		model.add(LSTM(64, activation='relu'))
+		model.add(LSTM(128, activation='relu'))
 		model.add(Dense(32, activation='relu'))
 		model.add(Dense(3))
 		
@@ -26,7 +26,7 @@ class Glucose_Predictor:
 		print("Training the model on patient ", patient.ID)
 		# train the model with the data from the patient
 		input_sequence, output_sequence = patient.process_data()
-		self.model.fit(np.array(input_sequence), np.array(output_sequence), epochs=100, batch_size=1)
+		self.model.fit(np.array(input_sequence), np.array(output_sequence), epochs=20, batch_size=1)
 
 	# TODO
 	def predict(self, patient, time):
